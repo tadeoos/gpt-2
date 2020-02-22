@@ -11,15 +11,32 @@ import tensorflow as tf
 import model, sample, encoder
 
 
-logger = logging.getLogger('contentyze.model')
+def get_module_logger(mod_name):
+    """
+    To use this, do logger = get_module_logger(__name__)
+    """
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    return logger
+
+
+logging._warn_preinit_stderr = 0
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def run():
+    logger.info('MODEL IS UP')
     r = redis.Redis(host='redis', port=6379)
     p = r.pubsub(ignore_subscribe_messages=True)
     p.subscribe('model-titles')
 
-    model_name = '124M'
+    model_name = os.environ.get("MODEL_NAME", '1558M')
     seed = None
     nsamples = 1
     batch_size = 1
@@ -28,7 +45,7 @@ def run():
     top_k = 40
     top_p = 1
 
-    models_dir = os.path.expanduser(os.path.expandvars('/gpt-2/models'))
+    models_dir = '/models'
     if batch_size is None:
         batch_size = 1
     assert nsamples % batch_size == 0
@@ -64,6 +81,7 @@ def run():
             if not msg:
                 time.sleep(0.01)
                 continue
+            start = time.time()
             raw_text = msg.get('data').decode()
             logger.info(f'Received title: {raw_text}')
             context_tokens = enc.encode(raw_text)
@@ -72,7 +90,8 @@ def run():
             )[:, len(context_tokens):]
             text = enc.decode(out[0])
             r.set(raw_text, text)
-            logger.info('Text generation completed')
+            took = time.time() - start
+            logger.info(f'Text generation completed. Took {took:.3f} seconds')
 
 
 if __name__ == '__main__':

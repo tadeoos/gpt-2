@@ -2,12 +2,16 @@ FROM tensorflow/tensorflow:1.14.0-py3
 
 ENV LANG=C.UTF-8
 ENV PYTHONUNBUFFERED=1
-RUN apt-get update
+# COPY checkpoint /checkpoint
+RUN apt-get -y update && apt-get -y install gcc
 COPY ./requirements.txt /requirements.txt
 RUN pip3 install -r requirements.txt
 COPY ./entrypoint.sh /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
-COPY ./download_model.py /download_model.py
-RUN python3 download_model.py 124M
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#COPY ./download_model.py /download_model.py
+#RUN python3 download_model.py 124M
 WORKDIR /gpt-2
+
+ENTRYPOINT ["python3", "-X", "utf8", "serve.py"]

@@ -4,4 +4,4 @@ set -o pipefail
 set -o nounset
 
 cd /gpt-2
-python python3 -X utf8 serve.py
+python -X utf8 serve.py

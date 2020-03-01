@@ -17,7 +17,7 @@ app = Starlette(debug=False,
                 )
 
 sess = gpt2.start_tf_sess(threads=1)
-gpt2.load_gpt2(sess, model_name=os.environ.get("MODEL_NAME", '1558M'))
+gpt2.load_gpt2(sess, model_name=os.environ.get("MODEL_NAME", '1558M'), model_dir=os.environ.get("MODEL_DIR", '/models'))
 
 # Needed to avoid cross-domain issues
 response_header = {

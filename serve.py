@@ -9,7 +9,7 @@ import os
 import gc
 
 middleware = [
-    Middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['POST', 'OPTIONS'], allow_headers=["*"])
+    Middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=["*"])
 ]
 
 app = Starlette(debug=False,

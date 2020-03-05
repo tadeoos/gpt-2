@@ -58,7 +58,8 @@ async def homepage(request):
         tf.reset_default_graph()
         sess.close()
         sess = gpt2.start_tf_sess(threads=1)
-        gpt2.load_gpt2(sess)
+        gpt2.load_gpt2(sess, model_name=os.environ.get("MODEL_NAME", '1558M'),
+                       model_dir=os.environ.get("MODEL_DIR", '/models'))
         generate_count = 0
 
     gc.collect()
